@@ -1,0 +1,11 @@
+#
+# Directories to ignore
+#
+/Debug_FLASH/
+/Debug_RAM/
+
+#
+# Files to ignore
+#
+.settings/language.settings.xml
+.project
