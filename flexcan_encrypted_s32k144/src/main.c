@@ -97,14 +97,20 @@ uint8_t ledRequested = (uint8_t)LED0_CHANGE_REQUESTED;
 
 bool useEncryption = false;
 
+Can_ConfigType Can_Config;
+
 /******************************************************************************
  * Function prototypes
  ******************************************************************************/
+#if (0)
 void SendCANData(uint32_t mailbox, uint32_t messageId, uint8_t * data, uint32_t len);
+#endif
 void buttonISR(void);
 void BoardInit(void);
 void GPIOInit(void);
+#if (0)
 void FlexCANInit(void);
+#endif
 
 /******************************************************************************
  * Functions
@@ -165,18 +171,23 @@ void buttonISR(void)
 
             if (stat == STATUS_SUCCESS)
             {
+#           if(0)
                 /* Send the information via CAN */
                 SendCANData(TX_MAILBOX, TX_MSG_ID, ciphertext, 16UL);
+#           endif
             }
         }
         else if (sendFrame)
         {
+#       if (0)
             /* Send the information via CAN */
             SendCANData(TX_MAILBOX, TX_MSG_ID, &ledRequested, 1UL);
+#       endif
         }
     }
 }
 
+#if(0)
 /*
  * @brief: Send data via CAN to the specified mailbox with the specified message id
  * @param mailbox   : Destination mailbox number
@@ -209,6 +220,7 @@ void SendCANData(uint32_t mailbox, uint32_t messageId, uint8_t * data, uint32_t 
     /* Execute send non-blocking */
     FLEXCAN_DRV_Send(INST_FLEXCAN_CONFIG_1, mailbox, &dataInfo, messageId, data);
 }
+#endif
 
 /*
  * @brief : Initialize clocks, pins and power modes
@@ -253,6 +265,7 @@ void GPIOInit(void)
     INT_SYS_EnableIRQ(BTN_PORT_IRQn);
 }
 
+#if(0)
 /*
  * @brief Initialize FlexCAN driver and configure the bit rate
  */
@@ -266,6 +279,7 @@ void FlexCANInit(void)
      */
     FLEXCAN_DRV_Init(INST_FLEXCAN_CONFIG_1, &flexcanState0, &flexcanInitConfig0);
 }
+#endif
 
 volatile int exit_code = 0;
 
@@ -277,8 +291,23 @@ int main(void)
     BoardInit();
     GPIOInit();
 
+#if (0)
     FlexCANInit();
+#endif
 
+    Can_Init( &Can_Config );
+
+    while( 1 )
+    {
+        /* */
+        Can_MainFunction_Read();
+
+        /* */
+    	Can_MainFunction_Write();
+    };
+
+
+#if(0)
     CSEC_DRV_Init(&csecState);
 
     /* Set information about the data to be received
@@ -345,6 +374,7 @@ int main(void)
             PINS_DRV_TogglePins(GPIO_PORT, (1 << LED1));
         }
     }
+#endif
   for(;;) {
     if(exit_code != 0) {
       break;
