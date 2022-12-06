@@ -30,8 +30,16 @@ void Can_Init( const Can_ConfigType * ConfigPtr )
 	}
 	else
 	{
+
 		/* [SWS_Can_00259] */
 		Can_ControllerState = CAN_CS_STOPPED;
+
+#	if ( 0 )
+		for ( controller = 0x00u ; ( Can_NumberOfChannels > controller ); controller++ )
+#	endif
+		{
+
+		}
 	}
 
 }

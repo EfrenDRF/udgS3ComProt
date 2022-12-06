@@ -10,6 +10,14 @@
 
 #include "StandardTypes.h"
 
+#ifndef __IO
+#	define	__IO			volatile
+#endif
+
+#ifndef __I
+#	define __I				volatile
+#endif
+
 /* [SWS_CAN_00416] */
 typedef uint32				Can_IdType;
 
@@ -28,9 +36,9 @@ typedef struct
 /* [SWS_CAN_91013] */
 typedef enum
 {
-	CAN_CS_UNINIT			= 0x00u    ,
-	CAN_CS_STARTED			= 0x01u    ,
-	CAN_CS_STOPPED			= 0x02u    ,
+	CAN_CS_UNINIT			= 0x00u ,
+	CAN_CS_STARTED			= 0x01u ,
+	CAN_CS_STOPPED			= 0x02u ,
 	CAN_CS_SLEEP			= 0x03u
 }Can_ControllerStateType;
 
