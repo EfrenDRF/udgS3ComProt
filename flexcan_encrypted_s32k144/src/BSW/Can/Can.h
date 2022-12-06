@@ -23,7 +23,7 @@ typedef struct
  *
  * 
 ***************************************************************************************/
-extern void Can_Init( void );
+extern void Can_Init( const Can_ConfigType * ConfigPtr );
 
 /**************************************************************************************
  * Can_MainFunction_Read()

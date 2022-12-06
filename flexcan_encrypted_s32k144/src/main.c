@@ -30,6 +30,7 @@
 #include "sdk_project_config.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "Can.h"
 
 /******************************************************************************
  * Definitions
