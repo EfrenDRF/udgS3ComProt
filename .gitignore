@@ -2,4 +2,5 @@
 # Directories to ignore
 #
 /.metadata/
+/.vscode/
 RemoteSystemsTempFiles/
