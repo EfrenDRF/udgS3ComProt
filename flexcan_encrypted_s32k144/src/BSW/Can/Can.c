@@ -10,8 +10,8 @@
 /**************************************************************************************
  * Macro definition
  **************************************************************************************/
-#define Can_GetCanCtrlBaseAdr( idx )		( ( Can_MemMapRegPtrType ) Can_ControllerConfig[ idx ].baseAdr )
-#define Can_GetCanNumMsgBuff( idx )			( Can_ControllerConfig[ idx ].numMsgBuff )
+#define Can_GetCanCtrlBaseAdr( idx )           ( ( Can_MemMapRegPtrType ) Can_ControllerConfig[ idx ].baseAdr )
+#define Can_GetCanNumMsgBuff( idx )            ( Can_ControllerConfig[ idx ].numMsgBuff )
 
 
 
@@ -26,17 +26,17 @@ static void Can_ClearRAM( uint8 controller )
 {
     uint32 databyte;
     uint32 RAM_size =  Can_GetCanNumMsgBuff( controller ) * 4U;
-	const Can_MemMapRegPtrType Can_MemMapRegPtr = Can_GetCanCtrlBaseAdr( controller );
+    const Can_MemMapRegPtrType Can_MemMapRegPtr = Can_GetCanCtrlBaseAdr( controller );
 
     /* Clear MB region */
     for ( databyte = 0x00u; ( RAM_size > databyte ); databyte++)
-	{
+    {
         Can_MemMapRegPtr->RAMn[ databyte ] = 0x00u;
     }
 
     /* Clear RXIMR region */
     for ( databyte = 0; ( Can_GetCanNumMsgBuff( controller ) > databyte ); databyte++ ) 
-	{
+    {
         Can_MemMapRegPtr->RXIMR[ databyte ] = 0x00u;
     }
 }
@@ -46,7 +46,7 @@ static void Can_ClearRAM( uint8 controller )
  **************************************************************************************/
 static void Can_SetRegisterInit( uint8 controller )
 {
-	const Can_MemMapRegPtrType Can_MemMapRegPtr = Can_GetCanCtrlBaseAdr( controller );
+    const Can_MemMapRegPtrType Can_MemMapRegPtr = Can_GetCanCtrlBaseAdr( controller );
 
     /* Reset the CAN */
     Can_MemMapRegPtr->MCR = ( Can_MemMapRegPtr->MCR & ~CAN_MCR_SOFTRST_MASK ) | CAN_MCR_SOFTRST(1U);
@@ -81,25 +81,23 @@ static void Can_SetRegisterInit( uint8 controller )
  **************************************************************************************/
 void Can_Init( const Can_ConfigType * ConfigPtr )
 {
-	(void) ConfigPtr;
+    (void) ConfigPtr;
 
-	if ( CAN_CS_UNINIT != Can_DriverState )
-	{
-		/* RAISE CAN_E_TRANSITION */
-	}
-	else
-	{
+    if ( CAN_CS_UNINIT != Can_DriverState )
+    {
+        /* RAISE CAN_E_TRANSITION */
+    }
+    else
+    {
+        for ( uint8 controller = 0x00u ; ( Can_NumberOfControles > controller ); controller++ )
+        {
+            /* [SWS_Can_00259] */
+            Can_ControllerState[ controller ] = CAN_CS_STOPPED;
 
+            Can_SetRegisterInit( controller );
 
-		for ( uint8 controller = 0x00u ; ( Can_NumberOfControles > controller ); controller++ )
-		{
-			/* [SWS_Can_00259] */
-			Can_ControllerState[ controller ] = CAN_CS_STOPPED;
-
-			Can_SetRegisterInit( controller );
-
-		}
-	}
+        }
+    }
 
 }
 
@@ -108,14 +106,14 @@ void Can_Init( const Can_ConfigType * ConfigPtr )
  **************************************************************************************/
 void Can_DeInit( void )
 {
-	/* [SWS_Can_91010] */
-	Can_DriverState = CAN_CS_UNINIT;
+    /* [SWS_Can_91010] */
+    Can_DriverState = CAN_CS_UNINIT;
 
 
-	for ( uint8 controller = 0x00u ; ( Can_NumberOfControles > controller ); controller++ )
-	{
-		Can_ControllerState[ controller ] = CAN_CS_STOPPED;
-	}
+    for ( uint8 controller = 0x00u ; ( Can_NumberOfControles > controller ); controller++ )
+    {
+        Can_ControllerState[ controller ] = CAN_CS_STOPPED;
+    }
 }
 
 /**************************************************************************************
@@ -123,26 +121,26 @@ void Can_DeInit( void )
  **************************************************************************************/
 Std_ReturnType Can_SetBaudrate( uint8 Controller , uint16 BaudRateConfigID )
 {
-	Std_ReturnType retVal;
+    Std_ReturnType retVal;
 
-	(void) Controller;
-	(void) BaudRateConfigID;
+    (void) Controller;
+    (void) BaudRateConfigID;
 
 
-	if ( CAN_CS_STOPPED != Can_DriverState )
-	{
-		/* [SWS_CAN_00256] */
-		retVal = E_NOT_OK;
-	}
-	else
-	{
-		/* [SWS_CAN_00260] */
-		Can_DriverState = CAN_CS_STOPPED;
+    if ( CAN_CS_STOPPED != Can_DriverState )
+    {
+        /* [SWS_CAN_00256] */
+        retVal = E_NOT_OK;
+    }
+    else
+    {
+        /* [SWS_CAN_00260] */
+        Can_DriverState = CAN_CS_STOPPED;
 
-		/* [SWS_CAN_00422] */
-	}
+        /* [SWS_CAN_00422] */
+    }
 
-	return retVal;
+    return retVal;
 }
 
 /**************************************************************************************
@@ -150,33 +148,33 @@ Std_ReturnType Can_SetBaudrate( uint8 Controller , uint16 BaudRateConfigID )
  **************************************************************************************/
 Std_ReturnType Can_SetControllerMode( uint8 Controller , Can_ControllerStateType Transition )
 {
-	Std_ReturnType retVal;
+    Std_ReturnType retVal;
 
-	(void) Controller;
+    (void) Controller;
 
-	switch ( Transition )
-	{
-		case CAN_CS_STARTED:
-		{
-			if ( CAN_CS_STOPPED != Can_DriverState )
-			{
-				/* [SWS_CAN_00256] */
-				/* raise CAN_E_TRANSITION */
-				retVal = E_NOT_OK;
-			}
-		}break;
-		case CAN_CS_STOPPED:
-		{
+    switch ( Transition )
+    {
+        case CAN_CS_STARTED:
+        {
+            if ( CAN_CS_STOPPED != Can_DriverState )
+            {
+                /* [SWS_CAN_00256] */
+                /* raise CAN_E_TRANSITION */
+                retVal = E_NOT_OK;
+            }
+        }break;
+        case CAN_CS_STOPPED:
+        {
 
-		}break;
-		
-		default:
-			break;
-	}
+        }break;
+        
+        default:
+            break;
+    }
 
 
 
-	return retVal;
+    return retVal;
 }
 
 /**************************************************************************************
