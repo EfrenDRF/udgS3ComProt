@@ -18,6 +18,64 @@
 /*[SWS_Can_00103]*/
 static Can_ControllerStateType Can_DriverState    = CAN_CS_UNINIT;
 
+/**************************************************************************************
+ * Can_IsEnabled()
+ **************************************************************************************/
+static uint8 Can_IsEnabled( uint8 controller )
+{
+	uint8 retVal;
+	const Can_MemMapRegPtrType Can_MemMapRegPtr = Can_GetCanCtrlBaseAdr( controller );
+
+	retVal = ( ( ( ( Can_MemMapRegPtr->MCR & CAN_MCR_MDIS_MASK ) >> CAN_MCR_MDIS_SHIFT ) != 0U) ? FALSE : TRUE );
+
+    return retVal;
+}
+
+/**************************************************************************************
+ * Can_Enable()
+ **************************************************************************************/
+static void Can_Enable( uint8 controller )
+{
+	const Can_MemMapRegPtrType Can_MemMapRegPtr = Can_GetCanCtrlBaseAdr( controller );
+
+    /* Check for low power mode */
+    if( ( ( Can_MemMapRegPtr->MCR & CAN_MCR_LPMACK_MASK ) >> CAN_MCR_LPMACK_SHIFT ) == 1U )
+    {
+        /* Enable clock */
+        Can_MemMapRegPtr->MCR = ( Can_MemMapRegPtr->MCR & ~CAN_MCR_MDIS_MASK ) | CAN_MCR_MDIS(0U);
+        Can_MemMapRegPtr->MCR = ( Can_MemMapRegPtr->MCR & ~CAN_MCR_FRZ_MASK  ) | CAN_MCR_FRZ(0U);
+        Can_MemMapRegPtr->MCR = ( Can_MemMapRegPtr->MCR & ~CAN_MCR_HALT_MASK ) | CAN_MCR_HALT(0U);
+        /* Wait until enabled */
+        while ( ( ( Can_MemMapRegPtr->MCR & CAN_MCR_NOTRDY_MASK ) >> CAN_MCR_NOTRDY_SHIFT ) != 0U ) {}
+    }
+}
+
+/**************************************************************************************
+ * Can_Disable()
+ **************************************************************************************/
+static void  Can_Disable( uint8 controller )
+{
+	const Can_MemMapRegPtrType Can_MemMapRegPtr = Can_GetCanCtrlBaseAdr( controller );
+
+    /* To access the memory mapped registers */
+    /* Entre disable mode (hard reset). */
+    if((( Can_MemMapRegPtr->MCR & CAN_MCR_MDIS_MASK) >> CAN_MCR_MDIS_SHIFT) == 0U)
+    {
+        /* Clock disable (module) */
+        Can_MemMapRegPtr->MCR = ( Can_MemMapRegPtr->MCR & ~CAN_MCR_MDIS_MASK ) | CAN_MCR_MDIS(1U);
+
+        /* Wait until disable mode acknowledged */
+        while ((( Can_MemMapRegPtr->MCR & CAN_MCR_LPMACK_MASK) >> CAN_MCR_LPMACK_SHIFT) == 0U) {}
+    }
+}
+
+/**************************************************************************************
+ * Can_EnterFreezeMode()
+ **************************************************************************************/
+static void Can_EnterFreezeMode( uint8 controller )
+{
+	(void) controller;
+}
 
 /**************************************************************************************
  * Can_ClearRAM()
@@ -94,6 +152,20 @@ void Can_Init( const Can_ConfigType * ConfigPtr )
             /* [SWS_Can_00259] */
             Can_ControllerState[ controller ] = CAN_CS_STOPPED;
 
+
+            if( TRUE == Can_IsEnabled( controller ) )
+            {
+                /* To enter Disable Mode requires FreezMode first */
+                Can_EnterFreezeMode( controller );
+                Can_Disable( controller );
+            }
+            
+            /* Enable CAN clock */
+            Can_Enable( controller );
+
+            Can_EnterFreezeMode( controller );
+
+            /* Initialize Can device */
             Can_SetRegisterInit( controller );
 
         }

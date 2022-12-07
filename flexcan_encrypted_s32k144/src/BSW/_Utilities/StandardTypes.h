@@ -12,6 +12,9 @@
 #define E_OK                            ( 0x00u )
 #define E_NOT_OK                        ( 0x01u )
 
+#define TRUE                            ( 0x00u )
+#define FALSE                           ( 0x01u )
+
 typedef unsigned char                   uint8;
 typedef unsigned short int              uint16;
 typedef unsigned long int               uint32;
